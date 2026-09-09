@@ -10,9 +10,10 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - run: moon version --all
-      - run: moon fmt --check
+      - run: moon fmt\n      - run: moon fmt --check
       - run: moon check --target wasm-gc --deny-warn
       - run: moon check --target wasm --deny-warn
       - run: moon check --target js --deny-warn
       - run: moon check --target native --deny-warn
       - run: moon test --target wasm-gc
+
