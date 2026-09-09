@@ -1,10 +1,10 @@
-name = "local/moonwire"
+name = "Han-Wentao/moonwire"
 
 version = "0.1.0"
 
 readme = "README.md"
 
-repository = "https://github.com/OWNER/moonwire"
+repository = "https://github.com/Han-Wentao/moonwire"
 
 license = "MIT"
 
