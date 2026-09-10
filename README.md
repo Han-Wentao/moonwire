@@ -68,3 +68,12 @@ moon test --target wasm-gc
 ## 错误处理
 
 错误标识是稳定字符串：`frame.truncated.header`、`frame.magic`、`frame.truncated.payload`、`frame.checksum`。调用方可以用 `explain` 把标识转换为适合日志展示的说明。
+## API 快速参考
+
+- `Frame::new(version, kind, payload)`：创建并校验帧；
+- `encode(frame)` / `decode(bytes)`：完整帧编解码；
+- `decode_prefix(bytes)`：解码第一帧并保留尾部字节；
+- `parse_header(bytes)`：只读取固定头部元数据；
+- `validate(bytes)` / `is_valid(bytes)`：检查完整帧；
+- `encode_checked(...)`：从基础字段安全编码；
+- `checksum_matches(bytes)`：检查完整帧校验和。
