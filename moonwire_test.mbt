@@ -106,3 +106,9 @@ test "validate reports exact failures" {
   assert_true(validate(frame) is Ok(_))
   assert_true(validate(b"bad") is Err("frame.truncated.header"))
 }
+
+///|
+test "format limits are public and stable" {
+  assert_eq(max_payload_length(), 16777215)
+  assert_eq(header_size(), 8)
+}

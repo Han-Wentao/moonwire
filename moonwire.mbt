@@ -250,3 +250,15 @@ pub fn validate(data : Bytes) -> Result[Unit, String] {
   let _ = decode(data)?
   Ok(())
 }
+
+///|
+/// Return the maximum payload size representable by the wire format.
+pub fn max_payload_length() -> Int {
+  MAX_PAYLOAD
+}
+
+///|
+/// Return the fixed header size in bytes.
+pub fn header_size() -> Int {
+  HEADER_SIZE
+}
