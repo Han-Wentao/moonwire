@@ -156,3 +156,11 @@ test "empty payload round trip" {
   assert_eq(decode(bytes).unwrap().payload(), b"")
   assert_eq(decode_prefix(bytes).unwrap().1, b"")
 }
+
+///|
+test "prefix decoder rejects incomplete payload" {
+  let bytes = encode(Frame::new(1, 1, b"complete").unwrap())
+  assert_true(
+    decode_prefix(bytes[:10].to_owned()) is Err("frame.truncated.payload"),
+  )
+}
