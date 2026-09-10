@@ -65,3 +65,6 @@ moon test --target wasm-gc
 ## 格式说明
 
 固定头部占 8 字节：2 字节 magic、1 字节版本、1 字节类型、3 字节大端长度和 1 字节校验和。长度字段只描述 payload，不包含头部。解码器要求输入恰好是一帧，额外字节也会被拒绝。
+## 错误处理
+
+错误标识是稳定字符串：`frame.truncated.header`、`frame.magic`、`frame.truncated.payload`、`frame.checksum`。调用方可以用 `explain` 把标识转换为适合日志展示的说明。
