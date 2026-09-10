@@ -77,3 +77,13 @@ test "frame size" {
   let frame = Frame::new(1, 1, b"moon").unwrap()
   assert_eq(frame.encoded_size(), encode(frame).length())
 }
+
+///|
+test "parse header metadata" {
+  let bytes = encode(Frame::new(5, 6, b"abc").unwrap())
+  let header = parse_header(bytes).unwrap()
+  assert_eq(header.version(), 5)
+  assert_eq(header.kind(), 6)
+  assert_eq(header.payload_length(), 3)
+  assert_eq(header.checksum(), bytes[7].to_int())
+}

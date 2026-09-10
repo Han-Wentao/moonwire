@@ -183,3 +183,55 @@ pub fn header_kind(data : Bytes) -> Result[Int, String] {
 pub fn Frame::encoded_size(self : Frame) -> Int {
   HEADER_SIZE + self.payload.length()
 }
+
+///|
+/// Metadata read from a frame header.
+pub struct Header {
+  version : Int
+  kind : Int
+  payload_length : Int
+  checksum : Int
+}
+
+///|
+/// Parse and validate the fixed-size header without decoding the payload.
+pub fn parse_header(data : Bytes) -> Result[Header, String] {
+  if data.length() < HEADER_SIZE {
+    Err("frame.truncated.header")
+  } else if data[0] != MAGIC_FIRST || data[1] != MAGIC_SECOND {
+    Err("frame.magic")
+  } else {
+    Ok({
+      version: data[2].to_int(),
+      kind: data[3].to_int(),
+      payload_length: data[4].to_int() * 65536 +
+      data[5].to_int() * 256 +
+      data[6].to_int(),
+      checksum: data[7].to_int(),
+    })
+  }
+}
+
+///|
+/// Get the version from parsed header metadata.
+pub fn Header::version(self : Header) -> Int {
+  self.version
+}
+
+///|
+/// Get the kind from parsed header metadata.
+pub fn Header::kind(self : Header) -> Int {
+  self.kind
+}
+
+///|
+/// Get the payload length from parsed header metadata.
+pub fn Header::payload_length(self : Header) -> Int {
+  self.payload_length
+}
+
+///|
+/// Get the stored checksum from parsed header metadata.
+pub fn Header::checksum(self : Header) -> Int {
+  self.checksum
+}
