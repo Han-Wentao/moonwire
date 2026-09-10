@@ -164,3 +164,14 @@ test "prefix decoder rejects incomplete payload" {
     decode_prefix(bytes[:10].to_owned()) is Err("frame.truncated.payload"),
   )
 }
+
+///|
+test "header parser rejects invalid magic" {
+  let invalid = Buffer()
+  invalid.write_bytes(b"XX")
+  for _ in 0..<6 {
+    invalid.write_byte((0 : Int).to_byte())
+  }
+  assert_true(parse_header(invalid.to_bytes()) is Err("frame.magic"))
+  assert_true(checksum_matches(invalid.to_bytes()) is Err("frame.magic"))
+}
