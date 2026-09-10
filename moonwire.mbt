@@ -283,3 +283,16 @@ pub fn Frame::same(self : Frame, other : Frame) -> Bool {
   self.kind == other.kind &&
   self.payload == other.payload
 }
+
+///|
+/// Encode a frame from primitive fields after applying constructor checks.
+pub fn encode_checked(
+  version : Int,
+  kind : Int,
+  payload : Bytes,
+) -> Result[Bytes, String] {
+  match Frame::new(version, kind, payload) {
+    Err(error) => Err(error)
+    Ok(frame) => Ok(encode(frame))
+  }
+}

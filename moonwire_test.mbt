@@ -121,3 +121,12 @@ test "frame equality follows wire fields" {
   assert_true(a.same(b))
   assert_true(!a.same(c))
 }
+
+///|
+test "checked encoding validates primitive inputs" {
+  assert_eq(
+    encode_checked(3, 4, b"ok").unwrap(),
+    encode(Frame::new(3, 4, b"ok").unwrap()),
+  )
+  assert_true(encode_checked(-1, 4, b"ok") is Err("frame.version.range"))
+}
