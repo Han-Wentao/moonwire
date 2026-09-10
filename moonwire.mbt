@@ -316,3 +316,9 @@ pub fn checksum_matches(data : Bytes) -> Result[Bool, String] {
     }
   }
 }
+
+///|
+/// Return the total number of bytes required by a parsed header.
+pub fn Header::total_size(self : Header) -> Int {
+  HEADER_SIZE + self.payload_length
+}

@@ -141,3 +141,9 @@ test "checksum inspection distinguishes corruption" {
   bad.write_bytes(bytes[8:])
   assert_eq(checksum_matches(bad.to_bytes()).unwrap(), false)
 }
+
+///|
+test "header total size" {
+  let header = parse_header(encode(Frame::new(1, 2, b"12345").unwrap())).unwrap()
+  assert_eq(header.total_size(), 13)
+}
