@@ -147,3 +147,12 @@ test "header total size" {
   let header = parse_header(encode(Frame::new(1, 2, b"12345").unwrap())).unwrap()
   assert_eq(header.total_size(), 13)
 }
+
+///|
+test "empty payload round trip" {
+  let frame = Frame::new(0, 0, b"").unwrap()
+  let bytes = encode(frame)
+  assert_eq(bytes.length(), header_size())
+  assert_eq(decode(bytes).unwrap().payload(), b"")
+  assert_eq(decode_prefix(bytes).unwrap().1, b"")
+}
