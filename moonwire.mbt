@@ -141,3 +141,27 @@ pub fn frame_checksum(
     Ok(checksum(version, kind, payload))
   }
 }
+
+///|
+/// Return the version from a valid header.
+pub fn header_version(data : Bytes) -> Result[Int, String] {
+  if data.length() < 8 {
+    Err("frame.truncated.header")
+  } else if data[0] != 0x4d || data[1] != 0x57 {
+    Err("frame.magic")
+  } else {
+    Ok(data[2].to_int())
+  }
+}
+
+///|
+/// Return the kind from a valid header.
+pub fn header_kind(data : Bytes) -> Result[Int, String] {
+  if data.length() < 8 {
+    Err("frame.truncated.header")
+  } else if data[0] != 0x4d || data[1] != 0x57 {
+    Err("frame.magic")
+  } else {
+    Ok(data[3].to_int())
+  }
+}
