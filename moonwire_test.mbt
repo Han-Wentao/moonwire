@@ -25,3 +25,12 @@ test "checksum" {
   let altered = encode(Frame::new(3, 4, b"abd").unwrap())
   assert_true(bytes != altered)
 }
+
+///|
+test "constructor boundaries" {
+  assert_true(Frame::new(-1, 0, b"") is Err("frame.version.range"))
+  assert_true(Frame::new(0, 256, b"") is Err("frame.kind.range"))
+  assert_eq(encoded_size(0).unwrap(), 8)
+  assert_eq(encoded_size(16777215).unwrap(), 16777223)
+  assert_true(encoded_size(-1) is Err("frame.payload.range"))
+}
