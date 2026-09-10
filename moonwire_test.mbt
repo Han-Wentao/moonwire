@@ -175,3 +175,36 @@ test "header parser rejects invalid magic" {
   assert_true(parse_header(invalid.to_bytes()) is Err("frame.magic"))
   assert_true(checksum_matches(invalid.to_bytes()) is Err("frame.magic"))
 }
+
+///|
+test "encoding vector fixes big endian layout" {
+  let bytes = encode(Frame::new(1, 2, b"A").unwrap())
+  assert_eq(bytes, b"MW\x01\x02\x00\x00\x01\x44A")
+}
+
+///|
+test "header helpers reject every short header" {
+  for n in 0..<header_size() {
+    let short = b"MW\x01\x02\x00\x00\x00"
+    assert_true(
+      parse_header(short[:n].to_owned()) is Err("frame.truncated.header"),
+    )
+  }
+}
+
+///|
+test "prefix decoder reports second frame corruption" {
+  let first = encode(Frame::new(1, 1, b"one").unwrap())
+  let second = encode(Frame::new(1, 2, b"two").unwrap())
+  let joined = Buffer()
+  joined.write_bytes(first)
+  joined.write_bytes(second)
+  let all = joined.to_bytes()
+  let damaged = Buffer()
+  damaged.write_bytes(all[:all.length() - 1])
+  damaged.write_byte((0 : Int).to_byte())
+  let result = decode_prefix(damaged.to_bytes()).unwrap()
+  assert_true(result.0.same(Frame::new(1, 1, b"one").unwrap()))
+  assert_eq(result.1.length(), second.length())
+  assert_true(decode(result.1) is Err("frame.checksum"))
+}
