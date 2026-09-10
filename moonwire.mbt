@@ -165,3 +165,9 @@ pub fn header_kind(data : Bytes) -> Result[Int, String] {
     Ok(data[3].to_int())
   }
 }
+
+///|
+/// Return the encoded size of this frame.
+pub fn Frame::encoded_size(self : Frame) -> Int {
+  8 + self.payload.length()
+}
