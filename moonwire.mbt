@@ -1,4 +1,16 @@
 ///|
+const MAGIC_FIRST : Byte = 0x4d
+
+///|
+const MAGIC_SECOND : Byte = 0x57
+
+///|
+const HEADER_SIZE : Int = 8
+
+///|
+const MAX_PAYLOAD : Int = 16777215
+
+///|
 /// A decoded application frame.
 pub struct Frame {
   version : Int
@@ -16,7 +28,7 @@ pub fn Frame::new(
     Err("frame.version.range")
   } else if kind < 0 || kind > 255 {
     Err("frame.kind.range")
-  } else if payload.length() > 16777215 {
+  } else if payload.length() > MAX_PAYLOAD {
     Err("frame.payload.too_large")
   } else {
     Ok({ version, kind, payload })
@@ -43,8 +55,8 @@ pub fn Frame::payload(self : Frame) -> Bytes {
 pub fn encode(frame : Frame) -> Bytes {
   let n = frame.payload.length()
   let out = Buffer()
-  out.write_byte((77 : Int).to_byte())
-  out.write_byte((87 : Int).to_byte())
+  out.write_byte(MAGIC_FIRST)
+  out.write_byte(MAGIC_SECOND)
   out.write_byte(frame.version.to_byte())
   out.write_byte(frame.kind.to_byte())
   out.write_byte((n / 65536).to_byte())
@@ -66,14 +78,14 @@ fn checksum(version : Int, kind : Int, payload : Bytes) -> Int {
 
 ///|
 pub fn decode(data : Bytes) -> Result[Frame, String] {
-  if data.length() < 8 {
+  if data.length() < HEADER_SIZE {
     return Err("frame.truncated.header")
   }
-  if data[0] != 0x4d || data[1] != 0x57 {
+  if data[0] != MAGIC_FIRST || data[1] != MAGIC_SECOND {
     return Err("frame.magic")
   }
   let n = data[4].to_int() * 65536 + data[5].to_int() * 256 + data[6].to_int()
-  if data.length() != 8 + n {
+  if data.length() != HEADER_SIZE + n {
     return Err("frame.truncated.payload")
   }
   let payload = data[8:].to_owned()
@@ -104,14 +116,14 @@ pub fn encoded_size(payload_length : Int) -> Result[Int, String] {
   if payload_length < 0 || payload_length > 16777215 {
     Err("frame.payload.range")
   } else {
-    Ok(8 + payload_length)
+    Ok(HEADER_SIZE + payload_length)
   }
 }
 
 ///|
 /// Return the payload length encoded in a valid frame header.
 pub fn payload_length(data : Bytes) -> Result[Int, String] {
-  if data.length() < 8 {
+  if data.length() < HEADER_SIZE {
     Err("frame.truncated.header")
   } else if data[0] != 0x4d || data[1] != 0x57 {
     Err("frame.magic")
@@ -135,7 +147,7 @@ pub fn frame_checksum(
 ) -> Result[Int, String] {
   if version < 0 || version > 255 || kind < 0 || kind > 255 {
     Err("frame.invalid")
-  } else if payload.length() > 16777215 {
+  } else if payload.length() > MAX_PAYLOAD {
     Err("frame.invalid")
   } else {
     Ok(checksum(version, kind, payload))
@@ -145,7 +157,7 @@ pub fn frame_checksum(
 ///|
 /// Return the version from a valid header.
 pub fn header_version(data : Bytes) -> Result[Int, String] {
-  if data.length() < 8 {
+  if data.length() < HEADER_SIZE {
     Err("frame.truncated.header")
   } else if data[0] != 0x4d || data[1] != 0x57 {
     Err("frame.magic")
@@ -157,7 +169,7 @@ pub fn header_version(data : Bytes) -> Result[Int, String] {
 ///|
 /// Return the kind from a valid header.
 pub fn header_kind(data : Bytes) -> Result[Int, String] {
-  if data.length() < 8 {
+  if data.length() < HEADER_SIZE {
     Err("frame.truncated.header")
   } else if data[0] != 0x4d || data[1] != 0x57 {
     Err("frame.magic")
@@ -169,5 +181,5 @@ pub fn header_kind(data : Bytes) -> Result[Int, String] {
 ///|
 /// Return the encoded size of this frame.
 pub fn Frame::encoded_size(self : Frame) -> Int {
-  8 + self.payload.length()
+  HEADER_SIZE + self.payload.length()
 }
