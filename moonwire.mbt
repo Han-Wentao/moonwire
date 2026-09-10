@@ -133,8 +133,11 @@ pub fn frame_checksum(
   kind : Int,
   payload : Bytes,
 ) -> Result[Int, String] {
-  Frame::new(version, kind, payload) catch {
-    _ => return Err("frame.invalid")
+  if version < 0 || version > 255 || kind < 0 || kind > 255 {
+    Err("frame.invalid")
+  } else if payload.length() > 16777215 {
+    Err("frame.invalid")
+  } else {
+    Ok(checksum(version, kind, payload))
   }
-  Ok(checksum(version, kind, payload))
 }
