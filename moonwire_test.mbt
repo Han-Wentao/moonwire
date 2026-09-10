@@ -34,3 +34,12 @@ test "constructor boundaries" {
   assert_eq(encoded_size(16777215).unwrap(), 16777223)
   assert_true(encoded_size(-1) is Err("frame.payload.range"))
 }
+
+///|
+test "header inspection" {
+  let bytes = encode(Frame::new(9, 4, b"data").unwrap())
+  assert_eq(payload_length(bytes).unwrap(), 4)
+  assert_true(payload_length(b"bad") is Err("frame.truncated.header"))
+  assert_true(payload_length(b"XX000000") is Err("frame.magic"))
+  assert_true(is_valid(bytes))
+}
