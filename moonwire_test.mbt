@@ -64,3 +64,10 @@ test "length and checksum rejection" {
   wrong_checksum.write_bytes(b"abc")
   assert_true(decode(wrong_checksum.to_bytes()) is Err("frame.checksum"))
 }
+
+///|
+test "header metadata" {
+  let bytes = encode(Frame::new(12, 34, b"x").unwrap())
+  assert_eq(header_version(bytes).unwrap(), 12)
+  assert_eq(header_kind(bytes).unwrap(), 34)
+}
