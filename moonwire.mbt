@@ -97,3 +97,25 @@ pub fn explain(error : String) -> String {
     _ => "invalid frame"
   }
 }
+
+///|
+/// Return the encoded frame size for a payload.
+pub fn encoded_size(payload_length : Int) -> Result[Int, String] {
+  if payload_length < 0 || payload_length > 16777215 {
+    Err("frame.payload.range")
+  } else {
+    Ok(8 + payload_length)
+  }
+}
+
+///|
+/// Return the payload length encoded in a valid frame header.
+pub fn payload_length(data : Bytes) -> Result[Int, String] {
+  if data.length() < 8 {
+    Err("frame.truncated.header")
+  } else if data[0] != 0x4d || data[1] != 0x57 {
+    Err("frame.magic")
+  } else {
+    Ok(data[4].to_int() * 65536 + data[5].to_int() * 256 + data[6].to_int())
+  }
+}
