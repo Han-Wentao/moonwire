@@ -99,3 +99,10 @@ test "decode prefix preserves trailing bytes" {
   assert_eq(result.0.kind(), 1)
   assert_eq(result.1, second)
 }
+
+///|
+test "validate reports exact failures" {
+  let frame = encode(Frame::new(2, 3, b"ok").unwrap())
+  assert_true(validate(frame) is Ok(_))
+  assert_true(validate(b"bad") is Err("frame.truncated.header"))
+}

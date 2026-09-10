@@ -244,3 +244,9 @@ pub fn decode_prefix(data : Bytes) -> Result[(Frame, Bytes), String] {
   let frame = decode(data[:total])?
   Ok((frame, data[total:]))
 }
+
+///| Validate a frame without allocating a decoded payload for callers.
+pub fn validate(data : Bytes) -> Result[Unit, String] {
+  let _ = decode(data)?
+  Ok(())
+}
