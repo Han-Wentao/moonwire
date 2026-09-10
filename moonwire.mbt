@@ -262,3 +262,11 @@ pub fn max_payload_length() -> Int {
 pub fn header_size() -> Int {
   HEADER_SIZE
 }
+
+///|
+/// Compare two frames by all wire-visible fields.
+pub fn Frame::same(self : Frame, other : Frame) -> Bool {
+  self.version == other.version &&
+  self.kind == other.kind &&
+  self.payload == other.payload
+}

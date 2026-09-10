@@ -112,3 +112,12 @@ test "format limits are public and stable" {
   assert_eq(max_payload_length(), 16777215)
   assert_eq(header_size(), 8)
 }
+
+///|
+test "frame equality follows wire fields" {
+  let a = Frame::new(1, 2, b"same").unwrap()
+  let b = Frame::new(1, 2, b"same").unwrap()
+  let c = Frame::new(1, 3, b"same").unwrap()
+  assert_true(a.same(b))
+  assert_true(!a.same(c))
+}
