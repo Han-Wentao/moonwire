@@ -71,3 +71,9 @@ test "header metadata" {
   assert_eq(header_version(bytes).unwrap(), 12)
   assert_eq(header_kind(bytes).unwrap(), 34)
 }
+
+///|
+test "frame size" {
+  let frame = Frame::new(1, 1, b"moon").unwrap()
+  assert_eq(frame.encoded_size(), encode(frame).length())
+}
