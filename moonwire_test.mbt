@@ -43,12 +43,24 @@ test "header inspection" {
   assert_true(payload_length(b"XX000000") is Err("frame.magic"))
   assert_true(is_valid(bytes))
 }
+
+///|
 test "length and checksum rejection" {
-  let bytes = encode(Frame::new(1, 2, b"abc").unwrap())
-  let mut wrong_length = bytes.to_mut()
-  wrong_length[6] = 4.to_byte()
+  let wrong_length = Buffer()
+  wrong_length.write_bytes(b"MW")
+  wrong_length.write_byte(1.to_byte())
+  wrong_length.write_byte(2.to_byte())
+  wrong_length.write_byte(0.to_byte())
+  wrong_length.write_byte(0.to_byte())
+  wrong_length.write_byte(4.to_byte())
+  wrong_length.write_byte(0.to_byte())
+  wrong_length.write_byte(97.to_byte())
+  wrong_length.write_byte(98.to_byte())
+  wrong_length.write_byte(99.to_byte())
   assert_true(decode(wrong_length.to_bytes()) is Err("frame.truncated.payload"))
-  let mut wrong_checksum = bytes.to_mut()
-  wrong_checksum[7] = (wrong_checksum[7].to_int() + 1).to_byte()
+  let wrong_checksum = Buffer()
+  wrong_checksum.write_bytes(encode(Frame::new(1, 2, b"abc").unwrap())[:7])
+  wrong_checksum.write_byte(0.to_byte())
+  wrong_checksum.write_bytes(b"abc")
   assert_true(decode(wrong_checksum.to_bytes()) is Err("frame.checksum"))
 }
