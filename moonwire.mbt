@@ -236,19 +236,32 @@ pub fn Header::checksum(self : Header) -> Int {
   self.checksum
 }
 
-///| Decode the first frame in data and return trailing bytes separately.
+///|
+/// Decode the first frame in data and return trailing bytes separately.
 pub fn decode_prefix(data : Bytes) -> Result[(Frame, Bytes), String] {
-  let header = parse_header(data)?
-  let total = HEADER_SIZE + header.payload_length()
-  if data.length() < total { return Err("frame.truncated.payload") }
-  let frame = decode(data[:total])?
-  Ok((frame, data[total:]))
+  match parse_header(data) {
+    Err(error) => Err(error)
+    Ok(header) => {
+      let total = HEADER_SIZE + header.payload_length()
+      if data.length() < total {
+        Err("frame.truncated.payload")
+      } else {
+        match decode(data[:total].to_owned()) {
+          Err(error) => Err(error)
+          Ok(frame) => Ok((frame, data[total:].to_owned()))
+        }
+      }
+    }
+  }
 }
 
-///| Validate a frame without allocating a decoded payload for callers.
+///|
+/// Validate a frame without allocating a decoded payload for callers.
 pub fn validate(data : Bytes) -> Result[Unit, String] {
-  let _ = decode(data)?
-  Ok(())
+  match decode(data) {
+    Err(error) => Err(error)
+    Ok(_) => Ok(())
+  }
 }
 
 ///|
