@@ -235,3 +235,12 @@ pub fn Header::payload_length(self : Header) -> Int {
 pub fn Header::checksum(self : Header) -> Int {
   self.checksum
 }
+
+///| Decode the first frame in data and return trailing bytes separately.
+pub fn decode_prefix(data : Bytes) -> Result[(Frame, Bytes), String] {
+  let header = parse_header(data)?
+  let total = HEADER_SIZE + header.payload_length()
+  if data.length() < total { return Err("frame.truncated.payload") }
+  let frame = decode(data[:total])?
+  Ok((frame, data[total:]))
+}

@@ -87,3 +87,15 @@ test "parse header metadata" {
   assert_eq(header.payload_length(), 3)
   assert_eq(header.checksum(), bytes[7].to_int())
 }
+
+///|
+test "decode prefix preserves trailing bytes" {
+  let first = encode(Frame::new(1, 1, b"one").unwrap())
+  let second = encode(Frame::new(1, 2, b"two").unwrap())
+  let joined = Buffer()
+  joined.write_bytes(first)
+  joined.write_bytes(second)
+  let result = decode_prefix(joined.to_bytes()).unwrap()
+  assert_eq(result.0.kind(), 1)
+  assert_eq(result.1, second)
+}
