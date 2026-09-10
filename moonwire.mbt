@@ -123,12 +123,9 @@ pub fn encoded_size(payload_length : Int) -> Result[Int, String] {
 ///|
 /// Return the payload length encoded in a valid frame header.
 pub fn payload_length(data : Bytes) -> Result[Int, String] {
-  if data.length() < HEADER_SIZE {
-    Err("frame.truncated.header")
-  } else if data[0] != 0x4d || data[1] != 0x57 {
-    Err("frame.magic")
-  } else {
-    Ok(data[4].to_int() * 65536 + data[5].to_int() * 256 + data[6].to_int())
+  match parse_header(data) {
+    Err(error) => Err(error)
+    Ok(header) => Ok(header.payload_length())
   }
 }
 
@@ -157,24 +154,18 @@ pub fn frame_checksum(
 ///|
 /// Return the version from a valid header.
 pub fn header_version(data : Bytes) -> Result[Int, String] {
-  if data.length() < HEADER_SIZE {
-    Err("frame.truncated.header")
-  } else if data[0] != 0x4d || data[1] != 0x57 {
-    Err("frame.magic")
-  } else {
-    Ok(data[2].to_int())
+  match parse_header(data) {
+    Err(error) => Err(error)
+    Ok(header) => Ok(header.version())
   }
 }
 
 ///|
 /// Return the kind from a valid header.
 pub fn header_kind(data : Bytes) -> Result[Int, String] {
-  if data.length() < HEADER_SIZE {
-    Err("frame.truncated.header")
-  } else if data[0] != 0x4d || data[1] != 0x57 {
-    Err("frame.magic")
-  } else {
-    Ok(data[3].to_int())
+  match parse_header(data) {
+    Err(error) => Err(error)
+    Ok(header) => Ok(header.kind())
   }
 }
 
