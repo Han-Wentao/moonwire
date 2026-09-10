@@ -119,3 +119,22 @@ pub fn payload_length(data : Bytes) -> Result[Int, String] {
     Ok(data[4].to_int() * 65536 + data[5].to_int() * 256 + data[6].to_int())
   }
 }
+
+///|
+/// Check whether bytes contain exactly one valid frame.
+pub fn is_valid(data : Bytes) -> Bool {
+  decode(data) is Ok(_)
+}
+
+///|
+/// Compute the checksum used by the frame format.
+pub fn frame_checksum(
+  version : Int,
+  kind : Int,
+  payload : Bytes,
+) -> Result[Int, String] {
+  Frame::new(version, kind, payload) catch {
+    _ => return Err("frame.invalid")
+  }
+  Ok(checksum(version, kind, payload))
+}
