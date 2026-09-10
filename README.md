@@ -68,6 +68,11 @@ moon test --target wasm-gc
 ## 错误处理
 
 错误标识是稳定字符串：`frame.truncated.header`、`frame.magic`、`frame.truncated.payload`、`frame.checksum`。调用方可以用 `explain` 把标识转换为适合日志展示的说明。
+
+`decode` 要求输入恰好包含一帧；当输入来自 TCP、串口或管道等可能连续到达多帧的来源时，使用 `decode_prefix`。它先读取 8 字节固定头，再依据三字节大端长度截取第一帧，并把剩余字节原样返回。`parse_header` 和 `checksum_matches` 适合在不需要构造 `Frame` 时做元数据检查或校验。
+
+长度字段的范围是 0 到 `max_payload_length()`（16,777,215），版本和类型字段的范围都是 0 到 255。`encode_checked` 用于调用方尚未把字段保存为已校验值的场景；如果已经有 `Frame`，直接调用 `encode`。
+
 ## API 快速参考
 
 - `Frame::new(version, kind, payload)`：创建并校验帧；
