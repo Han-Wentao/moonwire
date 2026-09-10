@@ -296,3 +296,23 @@ pub fn encode_checked(
     Ok(frame) => Ok(encode(frame))
   }
 }
+
+///|
+/// Check the stored checksum in a complete frame without returning its payload.
+pub fn checksum_matches(data : Bytes) -> Result[Bool, String] {
+  match parse_header(data) {
+    Err(error) => Err(error)
+    Ok(header) => {
+      let total = HEADER_SIZE + header.payload_length()
+      if data.length() != total {
+        Err("frame.truncated.payload")
+      } else {
+        let payload = data[HEADER_SIZE:].to_owned()
+        Ok(
+          header.checksum() ==
+          checksum(header.version(), header.kind(), payload),
+        )
+      }
+    }
+  }
+}

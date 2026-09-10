@@ -130,3 +130,14 @@ test "checked encoding validates primitive inputs" {
   )
   assert_true(encode_checked(-1, 4, b"ok") is Err("frame.version.range"))
 }
+
+///|
+test "checksum inspection distinguishes corruption" {
+  let bytes = encode(Frame::new(1, 2, b"value").unwrap())
+  assert_eq(checksum_matches(bytes).unwrap(), true)
+  let bad = Buffer()
+  bad.write_bytes(bytes[:7])
+  bad.write_byte((0 : Int).to_byte())
+  bad.write_bytes(bytes[8:])
+  assert_eq(checksum_matches(bad.to_bytes()).unwrap(), false)
+}
